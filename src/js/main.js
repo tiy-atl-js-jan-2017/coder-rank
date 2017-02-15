@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import GH_TOKEN from './token';
 
 var BASE_URL = "https://api.github.com";
 var retryCount = 0;
@@ -18,6 +19,7 @@ function rankingTemplate (user, contributions) {
 
 function displayStats (data, status, request) {
   var messages = $(".messages");
+  console.log(request.getAllResponseHeaders());
 
   if (request.status === 202) {
     retryCount++;
@@ -49,6 +51,9 @@ function fetchData () {
   $.ajax({
     url: `${BASE_URL}/repos/${user}/${repo}/stats/contributors`,
     dataType: "json",
+    headers: {
+      "Authorization": `token ${GH_TOKEN}`
+    },
     success: displayStats
   });
 }
