@@ -3,6 +3,19 @@ import $ from 'jquery';
 var BASE_URL = "https://api.github.com";
 var retryCount = 0;
 
+function rankingTemplate (user, contributions) {
+  return `
+    <li>
+      <a href="${user.html_url}">${user.login}</a>
+      <p>
+        ${user.login} made ${contributions.commits} number of commits
+        adding ${contributions.added} lines and deleting
+        ${contributions.deleted} lines of code.
+      </p>
+    </li>
+  `;
+}
+
 function displayStats (data, status, request) {
   var messages = $(".messages");
 
@@ -14,7 +27,18 @@ function displayStats (data, status, request) {
     messages.append("<p>We will resend your request in 60 seconds. 😍</p>");
     setTimeout(function () { fetchData(); }, 60000);
   } else {
-    console.log(data);
+    $(".rankings").empty();
+    data.forEach(function (rank) {
+      var weeks = rank.weeks;
+      var totals = { added: 0, deleted: 0, commits: 0 };
+      weeks.forEach(function (week) {
+        totals.added += week.a;
+        totals.deleted += week.d;
+        totals.commits += week.c;
+      });
+      var html = rankingTemplate(rank.author, totals);
+      $(".rankings").prepend(html);
+    });
   }
 }
 
