@@ -2,6 +2,14 @@
     box-sizing: border-box;
 }
 
-p {
-    font-size: 22px;
+.messages {
+    width: 50%;
+    height: 100px;
+    border: 1px solid lightgrey;
+    margin: 5px;
+}
+
+.container {
+    width: 60%;
+    margin: 50px auto;
 }
