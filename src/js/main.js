@@ -23,6 +23,18 @@ function startSearch (event) {
 //  $("form").submit(getProjects);
 }
 
+function getRepoStats (event) {
+  event.preventDefault();
+  showRepoRanks();
+}
+
+function showRepoRanks () {
+  var user = $("#user-name").val();
+  var repo = $("#repo-name").val();
+
+  repoStats(user, repo).then(displayStats, displayError);
+}
+
 function retryStats () {
   var messages = $(".messages");
   retryCount++;
@@ -56,16 +68,4 @@ function displayError (request, status) {
     messages.html(`<p>There was an error with the request: ${request.statusText}</p>`);
     console.log(request.responseJSON);
   }
-}
-
-function showRepoRanks () {
-  var user = $("#user-name").val();
-  var repo = $("#repo-name").val();
-
-  repoStats(user, repo).then(displayStats, displayError);
-}
-
-function getRepoStats (event) {
-  event.preventDefault();
-  showRepoRanks();
 }
