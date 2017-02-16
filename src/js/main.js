@@ -1,20 +1,28 @@
 import $ from 'jquery';
 import GH_TOKEN from './token';
 
+import { rankingsTemplate as rankingsTmpl,
+         searchTemplate as searchTmpl,
+         coderTemplate as coderTmpl } from './templates';
+import { repoStats } from './github';
+
 var BASE_URL = "https://api.github.com";
 var retryCount = 0;
 
-function rankingTemplate (user, contributions) {
-  return `
-    <li>
-      <a href="${user.html_url}">${user.login}</a>
-      <p>
-        ${user.login} made ${contributions.commits} number of commits
-        adding ${contributions.added} lines and deleting
-        ${contributions.deleted} lines of code.
-      </p>
-    </li>
-  `;
+var searchButton = $(".search-page");
+var rankingsButton = $(".rankings-page");
+
+searchButton.click(startSearch);
+rankingsButton.click(startRanking);
+
+function startRanking (event) {
+  $(".main-content").html(rankingsTmpl);
+  $("form").submit(getRepoStats);
+}
+
+function startSearch (event) {
+  $(".main-content").html(searchTmpl);
+//  $("form").submit(getProjects);
 }
 
 function displayStats (data, status, request) {
@@ -27,7 +35,7 @@ function displayStats (data, status, request) {
     messages.append(`<p>This is retry number ${retryCount}.</p>`);
     messages.append("<p>The data for that project is being processed.</p>");
     messages.append("<p>We will resend your request in 60 seconds. 😍</p>");
-    setTimeout(function () { fetchData(); }, 60000);
+    setTimeout(function () { showRepoRanks(); }, 60000);
   } else {
     $(".rankings").empty();
     data.forEach(function (rank) {
@@ -38,7 +46,7 @@ function displayStats (data, status, request) {
         totals.deleted += week.d;
         totals.commits += week.c;
       });
-      var html = rankingTemplate(rank.author, totals);
+      var html = coderTmpl(rank.author, totals);
       $(".rankings").prepend(html);
     });
   }
@@ -54,25 +62,14 @@ function displayError (request, status) {
   }
 }
 
-function fetchData () {
+function showRepoRanks () {
   var user = $("#user-name").val();
   var repo = $("#repo-name").val();
 
-  $.ajax({
-    url: `${BASE_URL}/repos/${user}/${repo}/stats/contributors`,
-    dataType: "json",
-    headers: {
-      "Authorization": `token ${GH_TOKEN}`
-    },
-    success: displayStats,
-    error: displayError
-  });
+  repoStats(user, repo).then(displayStats, displayError);
 }
 
 function getRepoStats (event) {
   event.preventDefault();
-  fetchData();
+  showRepoRanks();
 }
-
-var form = $("form");
-form.submit(getRepoStats);
