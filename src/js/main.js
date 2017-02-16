@@ -44,6 +44,16 @@ function displayStats (data, status, request) {
   }
 }
 
+function displayError (request, status) {
+  var messages = $(".messages");
+  if (request.status === 404) {
+    messages.html("<p>Sorry, there is no such project. Please try a different search.</p>");
+  } else {
+    messages.html(`<p>There was an error with the request: ${request.statusText}</p>`);
+    console.log(request.responseJSON);
+  }
+}
+
 function fetchData () {
   var user = $("#user-name").val();
   var repo = $("#repo-name").val();
@@ -54,7 +64,8 @@ function fetchData () {
     headers: {
       "Authorization": `token ${GH_TOKEN}`
     },
-    success: displayStats
+    success: displayStats,
+    error: displayError
   });
 }
 
