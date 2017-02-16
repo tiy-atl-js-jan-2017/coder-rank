@@ -28,4 +28,25 @@ function repoStats (user, repo) {
   });
 }
 
-export { searchRepos, repoStats };
+
+
+function processStats (data) {
+  return data.map(function (rank) {
+    var totals = { added: 0, deleted: 0, commits: 0 };
+    rank.weeks.forEach(function (week) {
+      totals.added += week.a;
+      totals.deleted += week.d;
+      totals.commits += week.c;
+    });
+
+    return {
+      login: rank.author.login,
+      profile_url: rank.author.html_url,
+      additions: totals.added,
+      deletions: totals.deleted,
+      commits: totals.commits
+    };
+  });
+}
+
+export { searchRepos, repoStats, processStats };

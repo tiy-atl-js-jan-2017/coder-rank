@@ -22,14 +22,14 @@ var searchTemplate = `
   </ul>
 `;
 
-function coderTemplate (user, contributions) {
+function coderTemplate (coder) {
   return `
     <li>
-      <a href="${user.html_url}">${user.login}</a>
+      <a href="${coder.html_url}">${coder.login}</a>
       <p>
-        ${user.login} made ${contributions.commits} number of commits
-        adding ${contributions.added} lines and deleting
-        ${contributions.deleted} lines of code.
+        ${coder.login} made ${coder.commits} number of commits
+        adding ${coder.additions} lines and deleting
+        ${coder.deletions} lines of code.
       </p>
     </li>
   `;

@@ -1,12 +1,10 @@
 import $ from 'jquery';
-import GH_TOKEN from './token';
 
 import { rankingsTemplate as rankingsTmpl,
          searchTemplate as searchTmpl,
          coderTemplate as coderTmpl } from './templates';
-import { repoStats } from './github';
+import { repoStats, processStats } from './github';
 
-var BASE_URL = "https://api.github.com";
 var retryCount = 0;
 
 var searchButton = $(".search-page");
@@ -25,28 +23,26 @@ function startSearch (event) {
 //  $("form").submit(getProjects);
 }
 
-function displayStats (data, status, request) {
+function retryStats () {
   var messages = $(".messages");
+  retryCount++;
+  messages.empty();
+  messages.append(`<p>This is retry number ${retryCount}.</p>`);
+  messages.append("<p>The data for that project is being processed.</p>");
+  messages.append("<p>We will resend your request in 60 seconds. 😍</p>");
+  setTimeout(function () { showRepoRanks(); }, 60000);
+}
+
+function displayStats (data, status, request) {
   console.log(request.getAllResponseHeaders());
 
   if (request.status === 202) {
-    retryCount++;
-    messages.empty();
-    messages.append(`<p>This is retry number ${retryCount}.</p>`);
-    messages.append("<p>The data for that project is being processed.</p>");
-    messages.append("<p>We will resend your request in 60 seconds. 😍</p>");
-    setTimeout(function () { showRepoRanks(); }, 60000);
+    retryStats();
   } else {
     $(".rankings").empty();
-    data.forEach(function (rank) {
-      var weeks = rank.weeks;
-      var totals = { added: 0, deleted: 0, commits: 0 };
-      weeks.forEach(function (week) {
-        totals.added += week.a;
-        totals.deleted += week.d;
-        totals.commits += week.c;
-      });
-      var html = coderTmpl(rank.author, totals);
+    var githubData = processStats(data);
+    githubData.forEach(function (user) {
+      var html = coderTmpl(user);
       $(".rankings").prepend(html);
     });
   }
