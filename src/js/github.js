@@ -38,29 +38,41 @@ function getUser (username) {
   });
 }
 
-function processStats (data) {
-  return data.map(function (rank) {
-    var totals = { added: 0, deleted: 0, commits: 0 };
-    rank.weeks.forEach(function (week) {
-      totals.added += week.a;
-      totals.deleted += week.d;
-      totals.commits += week.c;
-    });
-
-    return {
-      // name: ??,
-      // location: ??,
-      // profile_pic: ??,
-      // hireable: ??,
-      // blog: ??,
-      // employer: ??
-      login: rank.author.login,
-      profile_url: rank.author.html_url,
-      additions: totals.added,
-      deletions: totals.deleted,
-      commits: totals.commits
-    };
+function commitTotals (weeks) {
+  var totals = { added: 0, deleted: 0, commits: 0 };
+  weeks.forEach(function (week) {
+    totals.added += week.a;
+    totals.deleted += week.d;
+    totals.commits += week.c;
   });
+  return totals;
+}
+
+function rankCoders (statsData, userInfo) {
+  var totals = commitTotals(statsData.weeks);
+  return {
+    name: userInfo.name,
+    username: userInfo.login,
+    location: userInfo.location,
+    blog_url: userInfo.blog,
+    profile_pic: userInfo.avatar_url,
+    profile_url: userInfo.html_url,
+    employer: userInfo.company,
+    hireable: userInfo.hireable,
+    additions: totals.added,
+    deletions: totals.deleted,
+    commits: totals.commits
+  };
+}
+
+function processStats (data) {
+  var userRequests = data.map(function (statsData) {
+    var username = statsData.author.login;
+    return getUser(username).then(function (userInfo) {
+      return rankCoders(statsData, userInfo);
+    });
+  });
+  return Promise.all(userRequests);
 }
 
 export { searchRepos, repoStats, processStats };

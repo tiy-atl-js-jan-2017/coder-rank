@@ -32,7 +32,7 @@ function showRepoRanks () {
   var user = $("#user-name").val();
   var repo = $("#repo-name").val();
 
-  repoStats(user, repo).then(displayStats, displayError);
+  repoStats(user, repo).then(retryOrDisplay, displayError);
 }
 
 function retryStats () {
@@ -45,18 +45,22 @@ function retryStats () {
   setTimeout(function () { showRepoRanks(); }, 60000);
 }
 
-function displayStats (data, status, request) {
+function displayRanks (rankings) {
+  rankings.forEach(function (user) {
+    var html = coderTmpl(user);
+    $(".rankings").prepend(html);
+  });
+}
+
+function retryOrDisplay (data, status, request) {
   console.log(request.getAllResponseHeaders());
 
   if (request.status === 202) {
     retryStats();
   } else {
+    retryCount = 0;
     $(".rankings").empty();
-    var githubData = processStats(data);
-    githubData.forEach(function (user) {
-      var html = coderTmpl(user);
-      $(".rankings").prepend(html);
-    });
+    processStats(data).then(displayRanks);
   }
 }
 
