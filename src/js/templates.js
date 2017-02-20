@@ -24,9 +24,10 @@ var searchTemplate = `
 
 function coderTemplate (coder) {
   return `
+    <div class="coder">
       <div class="card">
         <div class="card-image">
-          <figure class="image is-4by3">
+          <figure class="image">
             <img src="${coder.profile_pic}" alt="Image">
           </figure>
         </div>
@@ -73,6 +74,7 @@ function coderTemplate (coder) {
         </div>
       </div>
     </div>
+  </div>
   `;
 }
 
