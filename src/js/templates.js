@@ -25,7 +25,7 @@ var searchTemplate = `
 function coderTemplate (coder) {
   return `
     <li>
-      <a href="${coder.html_url}">${coder.login}</a>
+      <a href="${coder.profile_url}">${coder.login}</a>
       <p>
         ${coder.login} made ${coder.commits} number of commits
         adding ${coder.additions} lines and deleting

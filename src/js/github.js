@@ -28,7 +28,15 @@ function repoStats (user, repo) {
   });
 }
 
-
+function getUser (username) {
+  return $.ajax({
+    url: `${BASE_URL}/users/${username}`,
+    dataType: "json",
+    headers: {
+      "Authorization": `token ${GH_TOKEN}`
+    }
+  });
+}
 
 function processStats (data) {
   return data.map(function (rank) {
@@ -40,6 +48,12 @@ function processStats (data) {
     });
 
     return {
+      // name: ??,
+      // location: ??,
+      // profile_pic: ??,
+      // hireable: ??,
+      // blog: ??,
+      // employer: ??
       login: rank.author.login,
       profile_url: rank.author.html_url,
       additions: totals.added,
